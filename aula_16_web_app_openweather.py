@@ -1,10 +1,5 @@
-import os
-
-import dotenv
 import requests
 import streamlit as st
-
-dotenv.load_dotenv(dotenv.find_dotenv())
 
 dict_clima = {
     'céu limpo': 'Céu limpo ☀️',
@@ -13,6 +8,9 @@ dict_clima = {
     'névoa': 'Névoa 🌫️',
 }
 
+# 🔑 Coloque sua chave da API aqui
+API_KEY = "9fcd7309d6062063ad83397457c86412"
+
 
 def fazer_request(url, params=None):
     resposta = requests.get(url=url, params=params)
@@ -20,57 +18,55 @@ def fazer_request(url, params=None):
         resposta.raise_for_status()
     except requests.HTTPError as e:
         print(f"Erro no request: {e}")
-        resultado = None
+        return None
     else:
-        resultado = resposta.json()
-    return resultado
+        return resposta.json()
 
 
 def pegar_tempo_para_local(local):
-    app_id = os.environ['CHAVE_API_OPENWEATHER']
-    url = f"https://api.openweathermap.org/data/2.5/weather"
+    if not local:
+        return None
+
+    url = "https://api.openweathermap.org/data/2.5/weather"
     params = {
-        'q': local,
-        'appid': app_id,
-        'units': 'metric',
-        'lang': 'pt_br',
+        "q": local,
+        "appid": API_KEY,
+        "units": "metric",
+        "lang": "pt_br",
     }
-    dados_tempo = fazer_request(url=url, params=params)
-    return dados_tempo
+    return fazer_request(url, params)
 
 
 def main():
-    # Cabeçalho do Web App
-    st.title('Web App Tempo ☀️')
-    st.write('Dados do OpenWeather (fonte: https://openweathermap.org/current)')
-    local = st.text_input('Busque uma cidade:')
+    st.title("Web App Tempo ☀️")
+    st.write("Dados do OpenWeather (fonte: https://openweathermap.org/current)")
+
+    local = st.text_input("Busque uma cidade:")
     if not local:
+        st.info("Digite o nome de uma cidade acima e pressione Enter.")
         st.stop()
 
-    # Acessa dados do OpenWeather
-    dados_tempo = pegar_tempo_para_local(local=local)
-    if not dados_tempo:  # Sem dados para este local
-        st.warning(f'Localidade "{local}" não foi encontrada no banco de dados da OpenWeather!')
+    dados_tempo = pegar_tempo_para_local(local)
+    if not dados_tempo or "weather" not in dados_tempo:
+        st.error("❌ Não foi possível obter os dados. Verifique o nome da cidade ou a chave da API.")
         st.stop()
 
-    # extrai dados retornados para variáveis
-    clima_atual = dados_tempo['weather'][0]['description']
+    clima_atual = dados_tempo["weather"][0]["description"]
     clima_atual = dict_clima.get(clima_atual, clima_atual)
-    temperatura = dados_tempo['main']['temp']
-    sensacao_termica = dados_tempo['main']['feels_like']
-    umidade = dados_tempo['main']['humidity']
-    cobertura_nuvens = dados_tempo['clouds']['all']
+    temperatura = dados_tempo["main"]["temp"]
+    sensacao_termica = dados_tempo["main"]["feels_like"]
+    umidade = dados_tempo["main"]["humidity"]
+    cobertura_nuvens = dados_tempo["clouds"]["all"]
 
-    # Exibe no Web App
-    st.metric(label='Tempo atual', value=clima_atual)
+    st.metric(label="Tempo atual", value=clima_atual)
     col1, col2 = st.columns(2)
     with col1:
-        st.metric(label='Temperatura', value=f'{temperatura} °C')
-        st.metric(label='Sensação térmica', value=f'{sensacao_termica} °C')
+        st.metric(label="Temperatura", value=f"{temperatura} °C")
+        st.metric(label="Sensação térmica", value=f"{sensacao_termica} °C")
     with col2:
-        st.metric(label='Umidade do ar', value=f'{umidade}%')
-        st.metric(label='Cobertura de nuvens', value=f'{cobertura_nuvens}%')
+        st.metric(label="Umidade do ar", value=f"{umidade}%")
+        st.metric(label="Cobertura de nuvens", value=f"{cobertura_nuvens}%")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
