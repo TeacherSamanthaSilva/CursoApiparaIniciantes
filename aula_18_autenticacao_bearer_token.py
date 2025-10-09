@@ -4,7 +4,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 # 🔐 Substitua pelos seus dados reais
-usuario = '21d0b5af80734da2ab3f9151339c3acd'
+usuario = '21d0b5af80734da2ab3f9151339c3acdseu'
 senha = 'd49dbc8d82ef4931b55aec67c623552f'
 
 # Request de autenticação
