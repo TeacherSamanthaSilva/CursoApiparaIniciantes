@@ -1,22 +1,17 @@
-import os
 from pprint import pprint
 import sys
-
-import dotenv
 import requests
 from requests.auth import HTTPBasicAuth
 
-dotenv.load_dotenv(dotenv.find_dotenv())
+# 🔐 Substitua pelos seus dados reais
+usuario = '21d0b5af80734da2ab3f9151339c3acd'
+senha = 'd49dbc8d82ef4931b55aec67c623552f'
 
 # Request de autenticação
 url = "https://accounts.spotify.com/api/token"
-
 body = {
     'grant_type': 'client_credentials',
 }
-
-usuario = os.environ['SPOTIFY_CLIENT_ID']
-senha = os.environ['SPOTIFY_CLIENT_SECRET']
 auth = HTTPBasicAuth(username=usuario, password=senha)
 
 resposta = requests.post(url=url, data=body, auth=auth)
@@ -32,7 +27,6 @@ else:
 
 if not token:
     sys.exit()
-
 
 # Request de busca de dados
 id_artista = '246dkjvS1zLTtiykXe5h60'
