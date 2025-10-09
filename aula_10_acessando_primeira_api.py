@@ -1,7 +1,7 @@
 from pprint import pprint
 import requests
 
-url = "https://servicodados.ibge.gov.br/api/v2/censos/nomes/Samanta"
+url = "https://servicodados.ibge.gov.br/api/v2/censos/nomes/AntonioLuizdaSilva"
 resposta = requests.get(url=url)
 
 try:
